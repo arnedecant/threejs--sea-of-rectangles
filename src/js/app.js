@@ -22,6 +22,8 @@ class App {
 
 		window.ENGINE = new Engine()
 
+		this.size = 2
+
 		// init
 
 		this.init()
@@ -42,9 +44,9 @@ class App {
 
 	generate() {
 
-		// generate rectangles
+		// generate matrix for rectangles
 
-		this.rectangles = []
+		this.matrix = []
 
 		let colors = [0xffffff, 0xf6d7b0, 0x248079, 0xA98F78, 0x9A6169, 0x65BB61, 0xABD66A, 0x6BC6FF, 0xfedd52]
 		let rows = 20
@@ -54,26 +56,26 @@ class App {
 
 		for (let i = -rows; i < rows; i++) {
 
+			let row = []
+
 			// columns
 
 			for (let j = -cols; j < cols; j++) {
 
-				// let height = Math.random() * 10
-				let height = 1
 				let color = colors[Math.abs(i * j) % colors.length]
 
-				let geometry = new THREE.BoxGeometry(1, height, 1)
+				let geometry = new THREE.BoxGeometry(this.size, this.size, this.size)
 				let material = new THREE.MeshBasicMaterial({color: color})
 
 				// set anchor at bottom
 
-				geometry.translate(0, height / 2, 0)
+				geometry.translate(0, this.size / 2, 0)
 
 				let mesh = new THREE.Mesh(geometry, material)
-				mesh.position.set(j, 0, i)
+				mesh.position.set(j * this.size, 0, i * this.size)
 				ENGINE.scene.add(mesh)
 
-				this.rectangles.push({
+				row.push({
 					mesh: mesh,
 					row: i,
 					col: j,
@@ -81,6 +83,8 @@ class App {
 				})
 
 			}
+
+			this.matrix.push(row)
 
 		}
 
@@ -96,10 +100,14 @@ class App {
 
 		// update
 
-		this.rectangles.forEach((rect) => {
+		this.matrix.forEach((row) => {
 
-			if (rect.mesh.scale.y > 3 || rect.mesh.scale.y < 1) rect.delta = 0 - rect.delta
-			rect.mesh.scale.y += rect.delta
+			row.forEach((rect) => {
+
+				if (rect.mesh.scale.y > 3 || rect.mesh.scale.y < 1) rect.delta = 0 - rect.delta
+				rect.mesh.scale.y += rect.delta
+
+			})
 
 		})
 
