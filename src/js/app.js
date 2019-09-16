@@ -23,6 +23,8 @@ class App {
 		window.ENGINE = new Engine()
 
 		this.size = 2
+		this.rows = 40
+		this.cols = 40
 
 		// init
 
@@ -49,8 +51,8 @@ class App {
 		this.matrix = []
 
 		let colors = [0xffffff, 0xf6d7b0, 0x248079, 0xA98F78, 0x9A6169, 0x65BB61, 0xABD66A, 0x6BC6FF, 0xfedd52]
-		let rows = 20
-		let cols = 20
+		let rows = this.rows / 2
+		let cols = this.cols / 2
 
 		// rows
 
