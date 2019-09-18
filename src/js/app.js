@@ -113,6 +113,12 @@ class App {
 
 		})
 
+		/*
+			□□□□□     □□■□□
+			□□■□□ ==> □■□■□ ==> spread outward ...
+			□□□□□     □□■□□
+		*/
+
 		// add self to the requestAnimationFrame
 
 		window.requestAnimationFrame(this.render.bind(this))
