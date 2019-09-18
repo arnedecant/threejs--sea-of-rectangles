@@ -75,14 +75,16 @@ class App {
 
 				let mesh = new THREE.Mesh(geometry, material)
 				mesh.position.set(j * this.size, 0, i * this.size)
+
+				mesh.data = {
+					row: i + this.rows / 2,
+					col: j + this.cols / 2,
+					delta: 0.01 * (Math.abs(i * j / 100) + 1)
+				}
+
 				ENGINE.scene.add(mesh)
 
-				row.push({
-					mesh: mesh,
-					row: i,
-					col: j,
-					delta: 0.01 * (Math.abs(i * j / 100) + 1)
-				})
+				row.push(mesh)
 
 			}
 
@@ -94,6 +96,43 @@ class App {
 
 	}
 
+	ripple(mesh) {
+
+		// Get default mesh, if no mesh is given 
+
+		if (!mesh) mesh = this.matrix[Math.floor(this.rows / 2)][Math.floor(this.cols / 2)]
+
+		console.log(this.matrix)
+		
+		// Skip code if the mesh has rippled already
+
+		if (mesh.data.hasRippled) return
+		mesh.data.hasRippled = true
+
+		// Animate given mesh and set the hasRippled flag
+
+		if (mesh.scale.y > 3 || mesh.scale.y < 1) mesh.data.delta = 0 - mesh.data.delta
+
+		mesh.scale.y += mesh.data.delta
+		mesh.data.hasRippled = true
+
+		// Get bounding meshes and ripple them as well
+
+		let row = mesh.data.row
+		let col = mesh.data.col
+
+		let toRipple = []
+
+		if (this.matrix[row - 1]) toRipple.push(this.matrix[row - 1][col])
+		if (this.matrix[row + 1]) toRipple.push(this.matrix[row + 1][col])
+
+		toRipple.push(this.matrix[row][col - 1])
+		toRipple.push(this.matrix[row][col + 1])
+
+		toRipple.forEach((mesh) => this.ripple(mesh))
+
+	}
+
 	render() {
 
         // render ENGINE
@@ -102,16 +141,18 @@ class App {
 
 		// update
 
-		this.matrix.forEach((row) => {
+		// this.matrix.forEach((row) => {
 
-			row.forEach((rect) => {
+		// 	row.forEach((mesh) => {
 
-				if (rect.mesh.scale.y > 3 || rect.mesh.scale.y < 1) rect.delta = 0 - rect.delta
-				rect.mesh.scale.y += rect.delta
+		// 		if (mesh.scale.y > 3 || mesh.scale.y < 1) mesh.data.delta = 0 - mesh.data.delta
+		// 		mesh.scale.y += mesh.data.delta
 
-			})
+		// 	})
 
-		})
+		// })
+
+		setTimeout((e) => this.ripple(), 5000)
 
 		/*
 			□□□□□     □□■□□
