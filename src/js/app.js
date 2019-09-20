@@ -26,6 +26,8 @@ class App {
 		this.rows = 40
 		this.cols = 40
 
+		this.toRipple = new Set([])
+
 		// init
 
 		this.init()
@@ -41,6 +43,8 @@ class App {
 		// render
 
 		this.render()
+
+		setTimeout((e) => this.ripple(), 5000)
 
 	}
 
@@ -66,7 +70,7 @@ class App {
 
 				let color = colors[Math.abs(i * j) % colors.length]
 
-				let geometry = new THREE.BoxGeometry(this.size, this.size, this.size)
+				let geometry = new THREE.BoxGeometry(this.size, this.size * 3, this.size)
 				let material = new THREE.MeshBasicMaterial({color: color})
 
 				// set anchor at bottom
@@ -76,10 +80,14 @@ class App {
 				let mesh = new THREE.Mesh(geometry, material)
 				mesh.position.set(j * this.size, 0, i * this.size)
 
+				mesh.scale.y = 2
+
 				mesh.data = {
 					row: i + this.rows / 2,
 					col: j + this.cols / 2,
-					delta: 0.01 * (Math.abs(i * j / 100) + 1)
+					// delta: 0.01 * (Math.abs(i * j / 100) + 1),
+					delta: -0.01,
+					count: 0
 				}
 
 				ENGINE.scene.add(mesh)
@@ -94,42 +102,48 @@ class App {
 
 		ENGINE.scene.updateMatrixWorld(true)
 
+		this.toRipple.add(this.matrix[Math.floor(this.rows / 2)][Math.floor(this.cols / 2)])
+
 	}
 
-	ripple(mesh) {
+	ripple(mesh, index) {
 
-		// Get default mesh, if no mesh is given 
+		if (!mesh) return
 
-		if (!mesh) mesh = this.matrix[Math.floor(this.rows / 2)][Math.floor(this.cols / 2)]
-
-		console.log(this.matrix)
-		
-		// Skip code if the mesh has rippled already
-
-		if (mesh.data.hasRippled) return
-		mesh.data.hasRippled = true
-
-		// Animate given mesh and set the hasRippled flag
-
-		if (mesh.scale.y > 3 || mesh.scale.y < 1) mesh.data.delta = 0 - mesh.data.delta
+		// Animate given mesh
 
 		mesh.scale.y += mesh.data.delta
-		mesh.data.hasRippled = true
+
+		if (mesh.scale.y > 3 || mesh.scale.y < 1) {
+			mesh.data.delta = 0 - mesh.data.delta
+			mesh.data.count++
+		}
+		
+		if (mesh.data.count >= 10 && mesh.scale.y == 2) this.toRipple.delete(mesh)
+
+		// We only chain the given mesh to it's bounding meshes one single time
+
+		if (mesh.data.hasChained) return
 
 		// Get bounding meshes and ripple them as well
+		// This will (try to) add a lot of meshes that are already rippling,
+		// but because this.toRipple is a set, which is unable to hold
+		// duplicate items, this is no longer an issue
 
 		let row = mesh.data.row
 		let col = mesh.data.col
 
-		let toRipple = []
+		setTimeout((e) => {
 
-		if (this.matrix[row - 1]) toRipple.push(this.matrix[row - 1][col])
-		if (this.matrix[row + 1]) toRipple.push(this.matrix[row + 1][col])
+			if (this.matrix[row - 1]) this.toRipple.add(this.matrix[row - 1][col])
+			if (this.matrix[row + 1]) this.toRipple.add(this.matrix[row + 1][col])
 
-		toRipple.push(this.matrix[row][col - 1])
-		toRipple.push(this.matrix[row][col + 1])
+			this.toRipple.add(this.matrix[row][col - 1])
+			this.toRipple.add(this.matrix[row][col + 1])
 
-		toRipple.forEach((mesh) => this.ripple(mesh))
+		}, 200)
+
+		mesh.data.hasChained = true
 
 	}
 
@@ -152,7 +166,7 @@ class App {
 
 		// })
 
-		setTimeout((e) => this.ripple(), 5000)
+		this.toRipple.forEach((mesh, i) => this.ripple(mesh, i))
 
 		/*
 			□□□□□     □□■□□
