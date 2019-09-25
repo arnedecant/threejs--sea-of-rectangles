@@ -118,6 +118,9 @@ class App {
 			mesh.data.delta = 0 - mesh.data.delta
 			mesh.data.count++
 		}
+
+		let l = (mesh.scale.y / 3 * 80) / 100
+		mesh.material.color.setHSL(220 / 360, 80 / 100, l)
 		
 		if (mesh.data.count >= 10 && mesh.scale.y == 2) this.toRipple.delete(mesh)
 
