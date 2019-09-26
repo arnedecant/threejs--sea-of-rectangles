@@ -22,7 +22,7 @@ class App {
 
 		window.ENGINE = new Engine()
 
-		this.gap = 1.5
+		this.gap = 0.5
 		this.size = 2
 		this.rows = 40
 		this.cols = 40
@@ -44,7 +44,6 @@ class App {
 		// render
 
 		this.render()
-
 		setTimeout((e) => this.ripple(), 5000)
 
 	}
@@ -80,9 +79,9 @@ class App {
 				geometry.translate(0, this.size / 2, 0)
 
 				let mesh = new THREE.Mesh(geometry, material)
-				console.log(j, this.size, this.gap)
-				mesh.position.set((j * this.size * this.gap), 0, (i * this.size * this.gap))
+				let multiplier = this.size * (this.gap + 1)
 
+				mesh.position.set(j * multiplier, 0, i * multiplier)
 				mesh.scale.y = 2
 
 				mesh.data = {
