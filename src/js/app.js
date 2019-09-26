@@ -22,6 +22,7 @@ class App {
 
 		window.ENGINE = new Engine()
 
+		this.gap = 1.5
 		this.size = 2
 		this.rows = 40
 		this.cols = 40
@@ -54,7 +55,7 @@ class App {
 
 		this.matrix = []
 
-		let colors = [0xffffff, 0xf6d7b0, 0x248079, 0xA98F78, 0x9A6169, 0x65BB61, 0xABD66A, 0x6BC6FF, 0xfedd52]
+		// let colors = [0xffffff, 0xf6d7b0, 0x248079, 0xA98F78, 0x9A6169, 0x65BB61, 0xABD66A, 0x6BC6FF, 0xfedd52]
 		let rows = this.rows / 2
 		let cols = this.cols / 2
 
@@ -68,7 +69,8 @@ class App {
 
 			for (let j = -cols; j < cols; j++) {
 
-				let color = colors[Math.abs(i * j) % colors.length]
+				// let color = colors[Math.abs(i * j) % colors.length]
+				let color = new THREE.Color("hsl(220, 80%, 53%)")
 
 				let geometry = new THREE.BoxGeometry(this.size, this.size * 3, this.size)
 				let material = new THREE.MeshBasicMaterial({color: color})
@@ -78,7 +80,8 @@ class App {
 				geometry.translate(0, this.size / 2, 0)
 
 				let mesh = new THREE.Mesh(geometry, material)
-				mesh.position.set(j * this.size, 0, i * this.size)
+				console.log(j, this.size, this.gap)
+				mesh.position.set((j * this.size * this.gap), 0, (i * this.size * this.gap))
 
 				mesh.scale.y = 2
 
